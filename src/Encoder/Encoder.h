@@ -14,7 +14,7 @@ class Encoder {
         int maxCounter = 12;
         void init(int SW_Pin = 27);
         bool isRotated();
-        void getCwDirection();
+        bool getCwDirection();
         void counterChange(bool cwRotation);
         bool buttonPressed();
         int readClk();

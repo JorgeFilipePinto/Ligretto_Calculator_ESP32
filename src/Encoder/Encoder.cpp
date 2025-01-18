@@ -28,7 +28,8 @@ bool Encoder::isRotated() {
 }
 
 
-void Encoder::getCwDirection() {
+bool Encoder::getCwDirection() {
+    bool state;
     int dtState = readDt();
     //Serial.print("DT State: ");
     //Serial.println(dtState);
@@ -36,10 +37,13 @@ void Encoder::getCwDirection() {
     if (dtState == LOW) {
         //Serial.println("Rotação: Horária (CW)");
         counterChange(true);
+        state = true;
     } else {
         //Serial.println("Rotação: Anti-horária (CCW)");
         counterChange(false);
+        state = false;
     }
+    return state;
 }
 
 
