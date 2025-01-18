@@ -1,7 +1,9 @@
 #include"Encoder.h"
 
 
-void Encoder::init(int SW_Pin) {
+void Encoder::init(int CLK_Pin, int DT_Pin, int SW_Pin) {
+    this-> CLK_Pin = CLK_Pin;
+    this-> DT_Pin = DT_Pin;
     this-> SW_Pin = SW_Pin;
     this-> button = new ezButton(SW_Pin);
     pinModes();
@@ -19,61 +21,53 @@ void Encoder::pinModes() {
 
 bool Encoder::isRotated() {
     CLK_estate = readClk();
-    if(CLK_estate != last_CLK_estate && CLK_estate == HIGH) {
-        last_CLK_estate = CLK_estate;
-        return true;
-    }
-    last_CLK_estate = CLK_estate;
-    return false;
+
+    return (CLK_estate != last_CLK_estate) && (CLK_estate == HIGH);
 }
 
 
 bool Encoder::getCwDirection() {
-    bool state;
-    int dtState = readDt();
-    //Serial.print("DT State: ");
-    //Serial.println(dtState);
 
-    if (dtState == LOW) {
-        //Serial.println("Rotação: Horária (CW)");
-        counterChange(true);
-        state = true;
+    if (readDt() == HIGH) {
+        Serial.println("Rotação: Horária (CW)");
+        return true;
     } else {
-        //Serial.println("Rotação: Anti-horária (CCW)");
-        counterChange(false);
-        state = false;
-    }
-    return state;
-}
-
-
-void Encoder::counterChange(bool cwRotation){
-    if(cwRotation) {
-        counter < maxCounter ? counter++ : counter + 0;  
-    } else {
-        counter > 0 ? counter-- : counter - 0;
-        
+        Serial.println("Rotação: Anti-horária (CCW)");
+        return false;
     }
 }
 
 
-bool Encoder::buttonPressed() {
+void Encoder::counterEncoder(){
+  CLK_estate = readClk();
 
-    return false;
+  if (CLK_estate != last_CLK_estate && CLK_estate == HIGH) {
+
+    if (readDt() == HIGH) {
+      counter++;
+    } else {
+      counter--;
+    }
+
+  }
+  last_CLK_estate = readClk();
+
+}
+
+
+bool Encoder::buttonIsPressed() {
+    button-> loop();
+    return button-> isPressed();
 }
 
 
 int Encoder::readClk() {
-    int state = digitalRead(CLK_Pin);
-    //Serial.print("CLK State: ");
-    //Serial.println(state);
-    return state;
+    digitalRead(CLK_Pin);
+    return digitalRead(CLK_Pin);
 }
 
 
 int Encoder::readDt() {
-    int state = digitalRead(DT_Pin);
-    //Serial.print("DT State: ");
-    //Serial.println(state);
-    return state;
+    digitalRead(DT_Pin);
+    return digitalRead(DT_Pin);
 }

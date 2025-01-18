@@ -1,26 +1,18 @@
 #include <Arduino.h>
-#include "LCD\Lcd.h"
-#include "Encoder\Encoder.h"
+#include "Menu\Menu.h"
 
 
 
-
-Encoder encoder;
-Lcd lcd;
-
+Menu menu;
 void setup() {
     Serial.begin(115200);
-    encoder.init();
-    lcd.init();
+    menu.init();
 }
 
 
 
 void loop() {
-    if(encoder.isRotated()) {
-        encoder.getCwDirection();
-        Serial.print("Counter: "); Serial.println(encoder.counter);
-    }
+    menu.mainMenuNavigation();
 }
 
 

@@ -4,14 +4,13 @@
 
 class Player {
     public:
-        int points = 0;
         String name;
+        int points = 0;
+        int tableCards = 0;
+        int handCards = 0;
 
-        Player(int playerNumber) {
-            name = "Player " + playerNumber;
-        }
-
-        void addPoints(int points);
+        void init(String name);
+        void addPoints();
 
     private:
 

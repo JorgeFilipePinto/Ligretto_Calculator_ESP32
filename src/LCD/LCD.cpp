@@ -7,7 +7,6 @@ void Lcd::init() {
   delay(250);
   lcd-> begin(address, true);
   lcd-> display();
-  delay(200);
   lcd-> clearDisplay();
   lcd-> setTextColor(SH110X_WHITE);
   apresentation();
@@ -21,6 +20,13 @@ void Lcd::refresh() {
 
 void Lcd::write(String text, int x, int y, int size) {
   allClear();
+  lcd-> setCursor(x, y);
+  lcd-> setTextSize(size);
+  lcd-> println(text);
+  refresh();
+}
+
+void Lcd::writeWithouClear(String text, int x, int y, int size) {
   lcd-> setCursor(x, y);
   lcd-> setTextSize(size);
   lcd-> println(text);
@@ -41,10 +47,8 @@ void Lcd::drawBmpImages(int x, int y, const unsigned char *image, int w, int h) 
 
 
 void Lcd::apresentation() {
-  drawBmpImages(30, 16, adafruit_logo);
-  delay(2000);
   drawBmpImages(0, 0, arduino_logo_image, 128, 64);
-  delay(250);
+  delay(3000);
 }
 
 
