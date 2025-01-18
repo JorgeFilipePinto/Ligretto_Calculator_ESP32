@@ -3,10 +3,6 @@
 #include <Wire.h>
 #include <ezButton.h>
 
-#define DIRECTION_CW 0
-#define DIRECTION_CCW 1
-
-
 
 class Encoder {
     public:
