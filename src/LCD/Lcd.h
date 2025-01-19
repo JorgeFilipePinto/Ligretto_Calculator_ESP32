@@ -11,7 +11,7 @@
 
 class Lcd {
     public:
-        Adafruit_SH1106G* lcd;
+        bool newData = true;
         void init();
         void refresh();
         void write(String text, int x, int y, int size);
@@ -25,6 +25,7 @@ class Lcd {
 
 
     private:
+        Adafruit_SH1106G* lcd;
         int address = 0x3c;
         int resetPin = -1;
         int width = 128;

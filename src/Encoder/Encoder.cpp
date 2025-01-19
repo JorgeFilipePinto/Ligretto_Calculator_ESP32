@@ -1,73 +1,76 @@
 #include"Encoder.h"
 
 
-void Encoder::init(int CLK_Pin, int DT_Pin, int SW_Pin) {
+static Encoder *instance = nullptr;
+
+void Encoder::init(int CLK_Pin, int DT_Pin, int SW_Pin, int EncoderSteps) {
     this-> CLK_Pin = CLK_Pin;
     this-> DT_Pin = DT_Pin;
     this-> SW_Pin = SW_Pin;
-    this-> button = new ezButton(SW_Pin);
-    pinModes();
+    this-> EncoderSteps = EncoderSteps;
+    this-> rotaryEncoder = new AiEsp32RotaryEncoder(CLK_Pin, DT_Pin, SW_Pin, -1, EncoderSteps);
+    numberSelector = AiEsp32RotaryEncoderNumberSelector();
+    instance = this;
 }
 
 
-void Encoder::pinModes() {
-  // configure encoder pins as inputs
-  pinMode(CLK_Pin, INPUT);
-  pinMode(DT_Pin, INPUT);
-  button-> setDebounceTime(50);  // set debounce time to 50 milliseconds
-  last_CLK_estate = readClk();
+Encoder::~Encoder() {
+  delete rotaryEncoder;
 }
 
 
-bool Encoder::isRotated() {
-    CLK_estate = readClk();
 
-    return (CLK_estate != last_CLK_estate) && (CLK_estate == HIGH);
+
+void Encoder::begin(){
+  rotaryEncoder->begin();
+  rotaryEncoder->setup(readEncoderISR);
+  numberSelector.attachEncoder(rotaryEncoder);
 }
 
 
-bool Encoder::getCwDirection() {
+void Encoder::update()
+{
+    rotaryEncoder->readEncoder(); // Atualizar manualmente o estado do encoder
+}
 
-    if (readDt() == HIGH) {
-        Serial.println("Rotação: Horária (CW)");
-        return true;
-    } else {
-        Serial.println("Rotação: Anti-horária (CCW)");
-        return false;
+
+bool Encoder::hasChanged()
+{
+    return rotaryEncoder->encoderChanged();
+}
+
+
+float Encoder::getValue()
+{
+  selectorState = numberSelector.getValue();
+    return selectorState;
+}
+
+
+bool Encoder::isButtonClicked()
+{
+    return rotaryEncoder->isEncoderButtonClicked();
+}
+
+
+void Encoder::setSelectorRange(float minSelector, float maxSelector, float midSelector, float scale, bool ciccle) {
+  this-> minSelector = minSelector;
+  this-> midSelector = midSelector;
+  this-> maxSelector = maxSelector;
+  this-> cicle = cicle;
+  this-> scale = scale;
+  selectorState = midSelector;
+  numberSelector.setRange(minSelector, maxSelector, scale, ciccle, 0);
+  numberSelector.setValue(midSelector);
+}
+
+void IRAM_ATTR Encoder::readEncoderISR()
+{
+    if (instance)
+    {
+        instance->rotaryEncoder->readEncoder_ISR();
     }
 }
 
 
-void Encoder::counterEncoder(){
-  CLK_estate = readClk();
 
-  if (CLK_estate != last_CLK_estate && CLK_estate == HIGH) {
-
-    if (readDt() == HIGH) {
-      counter++;
-    } else {
-      counter--;
-    }
-
-  }
-  last_CLK_estate = readClk();
-
-}
-
-
-bool Encoder::buttonIsPressed() {
-    button-> loop();
-    return button-> isPressed();
-}
-
-
-int Encoder::readClk() {
-    digitalRead(CLK_Pin);
-    return digitalRead(CLK_Pin);
-}
-
-
-int Encoder::readDt() {
-    digitalRead(DT_Pin);
-    return digitalRead(DT_Pin);
-}

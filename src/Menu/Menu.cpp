@@ -2,24 +2,26 @@
 
 
 void Menu::init() {
-    mainMenu = NEWGAME;
-
-    encoder.init();
+    mainMenu = MAIN;
     lcd.init();
+    lcd.apresentation();
+    encoder.init();
+    encoder.begin();
+    encoder.setSelectorRange(1, 3, 1, 1, false);
 }
 
 
 void Menu::checkMainMenuImage() {
-    switch(mainMenu) {
-        case NEWGAME: {
+    switch(int(encoder.selectorState)) {
+        case 1: {
             lcd.drawMenu1();
             break;
         }
-        case CONTINUE: {
+        case 2: {
             lcd.drawMenu2();
             break;
         }
-        case QUIT: {
+        case 3: {
             lcd.drawMenu3();
             break;
         }
@@ -27,105 +29,186 @@ void Menu::checkMainMenuImage() {
 }
 
 
-void Menu::nextMenu() {
-    switch(mainMenu) {
-        case NEWGAME: {
-            mainMenu = CONTINUE;
-            break;
-        }
-        case CONTINUE: {
-            mainMenu = QUIT;
-            break;
-        }
-        case QUIT: {
+void Menu::checkMenu() {
+    Serial.println("Menu Selected: " + String(encoder.selectorState));
+    switch(int(encoder.selectorState)) {
+        case 1: {
             mainMenu = NEWGAME;
+            encoder.setSelectorRange(1, 12, 1, 1, false);
+            break;
+        }
+        case 2: {
+            game.gameExist ? mainMenu = CONTINUE : mainMenu = MAIN;
+            break;
+        }
+        case 3: {
+            mainMenu = QUIT;
             break;
         }
     }
 }
-
-
-void Menu::previousMenu() {
-    switch(mainMenu) {
-        case NEWGAME: {
-            mainMenu = QUIT;
-            break;
-        }
-        case CONTINUE: {
-            mainMenu = NEWGAME;
-            break;
-        }
-        case QUIT: {
-            mainMenu = CONTINUE;
-            break;
-        }
-    }
-}
-
-
 
 
 void Menu::mainMenuNavigation() {
-    while(true) {
-        checkMainMenuImage();
-        encoder.isRotated() ? nextMenu() : void();
-        encoder.last_CLK_estate = encoder.CLK_estate;
-        if (encoder.buttonIsPressed()) {
-            switch(mainMenu) {
-                case NEWGAME: {
-                    newGame = PLAYERS;
-                    gameMenuNavigation();
-                    break;
-                }
-                case CONTINUE: {
-                    if (game.gameExist){
-                        gameMode = PLAYERS_SELECTION;
-                    }
-                    break;
-                }
-                case QUIT: {
+    checkMainMenuImage();
+    if (encoder.hasChanged()) {
+        encoder.getValue();
+        Serial.println("Encoder State: " + String(encoder.selectorState));
+    }
+    if (encoder.isButtonClicked()) checkMenu();
+}
 
-                    break;
-                }
-            }
-        }
+
+bool Menu::newGameNavigation() {
+    if (encoder.hasChanged()) {
+        lcd.newData = true;
+        encoder.getValue();
+        game.playersNumber = int(encoder.selectorState);
     }
 
+    if (lcd.newData) {
+        lcd.write("Players?", 20, 10, 2);
+        lcd.writeWithouClear(String(int(encoder.selectorState)), 55, 40, 3);
+        lcd.newData = false;
+    }
+
+    if (encoder.isButtonClicked() && encoder.selectorState > 1) {
+        Serial.println("Selecionado " + String(game.playersNumber) + " para jogar.");
+        return true;
+    }
+
+    return false;
 }
 
 
 void Menu::gameMenuNavigation() {
-    while (!endGame) {
-        switch (newGame) {
-        case PLAYERS: {
-            lcd.write("Players?", 20, 10, 2);
-            if (encoder.isRotated()) {
-                encoder.counterEncoder();
-            } else {
-                encoder.last_CLK_estate = encoder.readClk();
-            }
-            lcd.writeWithouClear(String(encoder.counter), 55, 40, 3);
-            if (encoder.buttonIsPressed() && encoder.counter > 1) {
-                newGame = NAMES;
-                game.init(encoder.counter);
-                encoder.counter = 0;
-            }
-            break;
+    game.round++;
+    lcd.newData = true;
+    encoder.setSelectorRange(1, game.playersNumber, 1, 1, false);
+    while(!game.isOver) {
+        if (game.roudIsFinish()) {
+            lcd.newData = true; 
+            game.newRound();
+            gameStatus();
+            sleepMode = true;
         }
 
-        case NAMES: {
-            if(game.players > 0 && !(game.playersCreated > 0)) {
-                game.playersCreating();
-            }
-            break;
-            }
+        if((millis() - lastTimer_ScreenStatus >= 10000) && !sleepMode) {
+            sleepMode = true;
+            lcd.newData = true;
+            gameStatus();
+        }
+
+        if (encoder.hasChanged()) {
+            sleepMode = false;
+            lcd.newData = true;
+            encoder.getValue();
+            playerSelection();
+            lastTimer_ScreenStatus = millis();
+        }
+
+        if (encoder.isButtonClicked()) {
+            int index = encoder.selectorState;
+            lcd.newData = true;
+            encoder.setSelectorRange(-30, 60, 0, 1, false);
+            playerData(index - 1);
         }
     }
 }
 
 
-void Menu::getMenu() {
-        
+void Menu::playerSelection() {
+    if (lcd.newData) {
+        lcd.write("Player", 20, 10, 2);
+        lcd.writeWithouClear(String(int(encoder.selectorState)), 55, 40, 3);
+        lcd.newData = false;
+    }
 }
 
 
+void Menu::playerData(int index) {
+    Serial.println(game.players[index].name);
+    bool configured = false;
+    bool handCards = false;
+    bool tableCards = false;
+    lcd.newData = true;
+    encoder.setSelectorRange(0, game.maxCardsHand, 0, 1, false);
+
+    while (!configured) {
+        if (millis() - lastTimer_ScreenStatus >= 10000) {
+            configured = true;
+            handCards = true;
+            tableCards = true;
+            sleepMode = false;
+        }
+
+        if (lcd.newData) {
+            lcd.write(game.players[index].name, 0, 0, 1);
+            lcd.writeWithouClear(String(game.players[index].points), 100, 0, 1);
+            lcd.writeWithouClear("Hand Cards: ", 0, 20, 1);
+            lcd.writeWithouClear(String(game.players[index].handCards), 80, 20, 1);
+            lcd.writeWithouClear("Table Cards: ", 0, 40, 1);
+            lcd.writeWithouClear(String(game.players[index].tableCards), 80, 40, 1);
+            lcd.newData = false;
+        }
+
+        if(encoder.hasChanged()) {
+            encoder.getValue();
+            lcd.newData = true;
+        }
+
+        if (!handCards) {
+            lastTimer_ScreenStatus = millis();
+            game.players[index].handCards = encoder.selectorState;
+            }
+
+        if (handCards) {
+            lastTimer_ScreenStatus = millis();
+            game.players[index].tableCards = encoder.selectorState;
+            }
+
+
+        if (encoder.isButtonClicked()) {
+            if (!handCards) {
+                handCards = true;
+                encoder.setSelectorRange(0, game.maxCardsTable, 0, 1, false);
+            } else {
+                tableCards = true;
+            }
+            Serial.println("handcards: " + String(handCards));
+            Serial.println("tableCards: " + String(tableCards));
+        }
+
+        if(tableCards && handCards) {
+            game.players[index].tempPoints = game.pointsCalcule(index);
+            Serial.println(game.players[index].name + " com " + String(game.players[index].tempPoints) + " pontos provisórios.");
+            encoder.setSelectorRange(1, game.playersNumber, 1, 1, false);
+            game.setPlayerRound(index);
+            lcd.newData = true;
+            gameStatus();
+            configured = true;
+        }
+    }
+}
+
+void Menu::gameStatus() {
+    
+    if (lcd.newData) {
+        /*
+        lcd.write(String(game.players[game.howIsWin()].name), 0, 0, 2);
+        lcd.writeWithouClear(String(game.players[game.howIsWin()].points), 100, 0, 2);
+        */
+       lcd.write("Status", 0, 0, 1);
+       lcd.writeWithouClear("Round: " + String(game.round), 60, 0, 1);
+        int posY = 3;
+        for (int i = 0; i < game.playersNumber; i++) {
+            posY += 10;
+            lcd.writeWithouClear(String(game.players[i].name), 0, posY, 1);
+            lcd.writeWithouClear(String(game.players[i].tempPoints + game.players[i].points), 100, posY, 1);
+            if (game.players[i].round == game.round) {
+                lcd.writeWithouClear("*", 80, posY, 1);
+            }
+        }
+        lcd.newData = false;
+    }
+}

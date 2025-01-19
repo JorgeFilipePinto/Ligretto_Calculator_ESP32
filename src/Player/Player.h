@@ -6,8 +6,10 @@ class Player {
     public:
         String name;
         int points = 0;
+        int tempPoints = 0;
         int tableCards = 0;
         int handCards = 0;
+        int round = 0;
 
         void init(String name);
         void addPoints();

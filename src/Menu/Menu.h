@@ -4,41 +4,31 @@
 #include "Game\Game.h"
 
 enum MainMenu {
+    MAIN,
     NEWGAME,
     CONTINUE,
     QUIT
 };
 
-enum NewGame {
-    PLAYERS,
-    NAMES
-};
-
-enum GameMode {
-    PLAYERS_SELECTION,
-    TABLE_CARDS,
-    HAND_CARDS
-};
-
-
 
 class Menu {
     public:
         MainMenu mainMenu;
-        NewGame newGame;
-        GameMode gameMode;
-
         Lcd lcd;
         Encoder encoder;
         Game game;
 
         bool endGame = false;
+        bool sleepMode = false;
+        unsigned long lastTimer_ScreenStatus = 10000; 
 
         void init();
         void checkMainMenuImage();
-        void nextMenu();
-        void previousMenu();
+        void checkMenu();
         void mainMenuNavigation();
+        bool newGameNavigation();
         void gameMenuNavigation();
-        void getMenu();
+        void playerSelection();
+        void playerData(int index);
+        void gameStatus();
 };

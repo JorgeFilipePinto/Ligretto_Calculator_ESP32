@@ -9,7 +9,6 @@ void Lcd::init() {
   lcd-> display();
   lcd-> clearDisplay();
   lcd-> setTextColor(SH110X_WHITE);
-  apresentation();
 }
 
 
