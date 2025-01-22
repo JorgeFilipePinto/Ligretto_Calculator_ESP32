@@ -22,6 +22,7 @@ class Lcd {
         void drawMenu1();
         void drawMenu2();
         void drawMenu3();
+        int pagesCalculation(int number, int maxNumber);
 
 
     private:

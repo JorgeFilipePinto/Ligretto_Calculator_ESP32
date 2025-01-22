@@ -58,3 +58,21 @@ int Game::pointsCalcule(int index) {
     points += players[index].tableCards;
     return points;
 }
+
+
+Player Game::winnerCalculation() {
+    int maxPoints = 0;
+    int playerIndex;
+
+    for(int i = 0; i < playersNumber; i++) {
+        
+        if (players[i].points > maxPoints) {
+
+            maxPoints = players[i].points;
+            playerIndex = i;
+        
+        }
+
+    }
+    return players[playerIndex];
+}

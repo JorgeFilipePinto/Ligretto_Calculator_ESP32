@@ -38,11 +38,11 @@ void Menu::checkMenu() {
             break;
         }
         case 2: {
-            game.gameExist ? mainMenu = CONTINUE : mainMenu = MAIN;
+            //game.gameExist ? mainMenu = CONTINUE : mainMenu = MAIN;
             break;
         }
         case 3: {
-            mainMenu = QUIT;
+            //mainMenu = QUIT;
             break;
         }
     }
@@ -212,3 +212,59 @@ void Menu::gameStatus() {
         lcd.newData = false;
     }
 }
+
+///////////////////////////////////////////////////////////////////////
+
+
+
+void Menu::newGameStatus() {
+    Player winner = game.winnerCalculation();
+
+    if (lcd.newData) {
+
+       lcd.write("Status", 0, 0, 1);
+
+        lcd.writeWithouClear("Round: " + String(game.round), 60, 0, 1);
+
+        lcd.writeWithouClear(winner.name, 0, 13, 1);
+        lcd.writeWithouClear(String(winner.points), 100, 13, 1);
+
+        int lastPosY = 13;
+
+        int pages = lcd.pagesCalculation(game.playersNumber, 5);
+
+        int lastIndex = 0;
+
+        for (int p = 0; p < pages; p++) {
+            
+            for (int i = 0; i < 5; i++) {
+
+                if (lastIndex < game.playersNumber) {
+
+                    if (game.players[lastIndex].name == winner.name) {
+
+                        continue;
+                    
+                    } else {          
+
+                        lastPosY += 10;
+                        lcd.writeWithouClear(String(game.players[lastIndex].name), 0, lastPosY, 1);
+                        lcd.writeWithouClear(String(game.players[lastIndex].tempPoints + game.players[lastIndex].points), 100, lastPosY, 1);
+                        
+                        if (game.players[lastIndex].round == game.round) {
+                            lcd.writeWithouClear("*", 80, lastPosY, 1);
+                        }
+
+                    }
+                }
+                lastIndex++;
+            }
+
+            delay(2000);
+
+        }
+
+        lcd.newData = false;
+    }
+}
+

@@ -14,6 +14,7 @@ class Game {
         int maxCardsHand = 10;
         int maxCardsTable = 40;
         Player* players;
+        Player winner;
         void init();
         void playersCreating();
         int howIsWin();
@@ -21,6 +22,22 @@ class Game {
         bool roudIsFinish();
         void setPlayerRound(int index);
         int pointsCalcule(int index);
+        Player winnerCalculation();
+        
+        String funnyNames[12] = {
+            "Gilberto",
+            "Anastácio",
+            "Carolino",
+            "Joaquina",
+            "Albertina",
+            "Player",
+            "Player",
+            "Player",
+            "Player",
+            "Player",
+            "Player",
+            "Player"
+        };
 
     private:
         

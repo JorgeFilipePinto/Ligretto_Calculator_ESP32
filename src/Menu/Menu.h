@@ -20,7 +20,7 @@ class Menu {
 
         bool endGame = false;
         bool sleepMode = false;
-        unsigned long lastTimer_ScreenStatus = 10000; 
+        unsigned long lastTimer_ScreenStatus = 10000;
 
         void init();
         void checkMainMenuImage();
@@ -31,4 +31,6 @@ class Menu {
         void playerSelection();
         void playerData(int index);
         void gameStatus();
+
+        void newGameStatus();
 };

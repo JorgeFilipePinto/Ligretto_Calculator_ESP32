@@ -65,3 +65,24 @@ void Lcd::drawMenu3() {
   drawBmpImages(0, 0, Menu3, 128, 64);
 }
 
+
+
+
+int Lcd::pagesCalculation(int number, int maxNumber) {
+  int pages = 0;
+  double temPages = 0.0;
+
+  temPages = double(number) / double(maxNumber);
+
+  Serial.println("Pages before calcule: " + String(temPages));
+
+  if (temPages - int(temPages) > 0.0) {
+    pages = int(temPages) + 1;
+  }
+
+  Serial.println("Pages after calcule: " + String(temPages));
+
+  return pages;
+}
+
+
