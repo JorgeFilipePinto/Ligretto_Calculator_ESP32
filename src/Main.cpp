@@ -37,6 +37,8 @@ void loop() {
                 menu.game.playersCreating();
                 Serial.println("Jogadores Criados com sucesso.....");
                 deviceState = DEVICE_GAME;
+                menu.lcd.newData = true;
+                
             }
             break;
         }

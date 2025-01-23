@@ -21,7 +21,7 @@ class Menu {
         bool endGame = false;
         bool sleepMode = false;
         unsigned long lastTimer_ScreenStatus = 10000;
-
+        int delatyToNewRound = 2000;
         void init();
         void checkMainMenuImage();
         void checkMenu();

@@ -8,6 +8,7 @@ class Game {
     public:
         bool isOver = false;
         bool gameExist = false;
+        int maxPlayers = 12;
         int playersNumber = 0;
         int playersCreated = 0;
         int round = 0;

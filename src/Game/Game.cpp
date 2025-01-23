@@ -35,7 +35,7 @@ void Game::newRound() {
         players[i].handCards = 0;
         players[i].tableCards = 0;
         players[i].tempPoints = 0;
-        Serial.println(players[i].name + " está com " + String(players[i].points) + "pontos.");
+        Serial.println(players[i].name + " está com " + String(players[i].points) + " pontos.");
     }
 }
 

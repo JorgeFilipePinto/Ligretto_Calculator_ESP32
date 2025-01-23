@@ -14,8 +14,8 @@ class Lcd {
         bool newData = true;
         void init();
         void refresh();
-        void write(String text, int x, int y, int size);
-        void writeWithouClear(String text, int x, int y, int size);
+        void write(String text, int x, int y, int size, bool displayRefresh = true);
+        void writeWithouClear(String text, int x, int y, int size, bool displayRefresh = true);
         void allClear();
         void drawBmpImages(int x, int y, const unsigned char *image, int w= 16, int h = 16);
         void apresentation();
@@ -23,6 +23,8 @@ class Lcd {
         void drawMenu2();
         void drawMenu3();
         int pagesCalculation(int number, int maxNumber);
+        void slidetext(String text, int x, int y, int size, bool displayRefresh = true);
+        void finishGame();
 
 
     private:

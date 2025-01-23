@@ -34,7 +34,7 @@ void Menu::checkMenu() {
     switch(int(encoder.selectorState)) {
         case 1: {
             mainMenu = NEWGAME;
-            encoder.setSelectorRange(1, 12, 1, 1, false);
+            encoder.setSelectorRange(1, game.maxPlayers, 1, 1, false);
             break;
         }
         case 2: {
@@ -82,11 +82,13 @@ bool Menu::newGameNavigation() {
 
 
 void Menu::gameMenuNavigation() {
-    game.round++;
+    //game.round++;
     lcd.newData = true;
     encoder.setSelectorRange(1, game.playersNumber, 1, 1, false);
+
     while(!game.isOver) {
         if (game.roudIsFinish()) {
+            delay(delatyToNewRound);
             lcd.newData = true; 
             game.newRound();
             gameStatus();
@@ -119,7 +121,7 @@ void Menu::gameMenuNavigation() {
 
 void Menu::playerSelection() {
     if (lcd.newData) {
-        lcd.write("Player", 20, 10, 2);
+        lcd.write("Player", 25, 10, 2, false);
         lcd.writeWithouClear(String(int(encoder.selectorState)), 55, 40, 3);
         lcd.newData = false;
     }
@@ -143,11 +145,11 @@ void Menu::playerData(int index) {
         }
 
         if (lcd.newData) {
-            lcd.write(game.players[index].name, 0, 0, 1);
-            lcd.writeWithouClear(String(game.players[index].points), 100, 0, 1);
-            lcd.writeWithouClear("Hand Cards: ", 0, 20, 1);
-            lcd.writeWithouClear(String(game.players[index].handCards), 80, 20, 1);
-            lcd.writeWithouClear("Table Cards: ", 0, 40, 1);
+            lcd.write(game.players[index].name, 0, 0, 1, false);
+            lcd.writeWithouClear(String(game.players[index].points), 100, 0, 1, false);
+            lcd.writeWithouClear("Hand Cards: ", 0, 20, 1, false);
+            lcd.writeWithouClear(String(game.players[index].handCards), 80, 20, 1, false);
+            lcd.writeWithouClear("Table Cards: ", 0, 40, 1, false);
             lcd.writeWithouClear(String(game.players[index].tableCards), 80, 40, 1);
             lcd.newData = false;
         }
@@ -191,6 +193,7 @@ void Menu::playerData(int index) {
     }
 }
 
+
 void Menu::gameStatus() {
     
     if (lcd.newData) {
@@ -198,17 +201,19 @@ void Menu::gameStatus() {
         lcd.write(String(game.players[game.howIsWin()].name), 0, 0, 2);
         lcd.writeWithouClear(String(game.players[game.howIsWin()].points), 100, 0, 2);
         */
-       lcd.write("Status", 0, 0, 1);
-       lcd.writeWithouClear("Round: " + String(game.round), 60, 0, 1);
+       lcd.write("Status", 0, 0, 1, false);
         int posY = 3;
+
         for (int i = 0; i < game.playersNumber; i++) {
             posY += 10;
-            lcd.writeWithouClear(String(game.players[i].name), 0, posY, 1);
-            lcd.writeWithouClear(String(game.players[i].tempPoints + game.players[i].points), 100, posY, 1);
+            lcd.writeWithouClear(String(game.players[i].name), 0, posY, 1, false);
+            lcd.writeWithouClear(String(game.players[i].tempPoints + game.players[i].points), 100, posY, 1, false);
+
             if (game.players[i].round == game.round) {
                 lcd.writeWithouClear("*", 80, posY, 1);
             }
         }
+        lcd.writeWithouClear("Round: " + String(game.round), 60, 0, 1);
         lcd.newData = false;
     }
 }

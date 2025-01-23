@@ -17,19 +17,20 @@ void Lcd::refresh() {
 }
 
 
-void Lcd::write(String text, int x, int y, int size) {
+void Lcd::write(String text, int x, int y, int size, bool displayRefresh) {
   allClear();
   lcd-> setCursor(x, y);
   lcd-> setTextSize(size);
   lcd-> println(text);
-  refresh();
+  displayRefresh ? refresh() : void();
 }
 
-void Lcd::writeWithouClear(String text, int x, int y, int size) {
+
+void Lcd::writeWithouClear(String text, int x, int y, int size, bool displayRefresh) {
   lcd-> setCursor(x, y);
   lcd-> setTextSize(size);
   lcd-> println(text);
-  refresh();
+  displayRefresh ? refresh() : void();
 }
 
 
@@ -66,8 +67,6 @@ void Lcd::drawMenu3() {
 }
 
 
-
-
 int Lcd::pagesCalculation(int number, int maxNumber) {
   int pages = 0;
   double temPages = 0.0;
@@ -83,6 +82,12 @@ int Lcd::pagesCalculation(int number, int maxNumber) {
   Serial.println("Pages after calcule: " + String(temPages));
 
   return pages;
+}
+
+
+void Lcd::finishGame() {
+  // Colocar imagens do menu exit
+
 }
 
 
